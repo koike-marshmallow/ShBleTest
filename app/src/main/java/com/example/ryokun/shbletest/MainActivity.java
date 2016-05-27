@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,6 +18,8 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothAdapter bta;
     private BluetoothAdapter.LeScanCallback lesc;
 
+    private final Handler handler = new Handler();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
         final Button bs = (Button)this.findViewById(R.id.btnstart);
         final Button be = (Button)this.findViewById(R.id.btnstop);
         final TextView tvs = (TextView)this.findViewById(R.id.textstatus);
+        final MainActivity actv = this;
 
         setInstanceText();
         addLogText("initialization", true);
@@ -53,8 +57,7 @@ public class MainActivity extends AppCompatActivity {
             public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord){
                 String msg = "ADDRESS=" + device.getAddress() + "\nRSSI=" + rssi;
                 Log.d("BLE", msg);
-                addLogText(msg, false);
-                Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+                handler.post(new Logging(msg, actv));
             }
         };
     }
@@ -74,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         ((TextView)findViewById(R.id.textinstance)).setText(str);
     }
 
-    private void addLogText(String str, boolean refresh){
+    public void addLogText(String str, boolean refresh){
         TextView tvl = (TextView)findViewById(R.id.textlog);
         String pre = tvl.getText().toString();
         if( refresh || pre.equals("") ){
@@ -82,6 +85,21 @@ public class MainActivity extends AppCompatActivity {
         }else{
             tvl.setText(pre + "\n" + str);
         }
+    }
+}
+
+
+class Logging implements Runnable {
+    private String msg;
+    private MainActivity activ;
+    public Logging (String msg, MainActivity actv){
+        this.msg = msg;
+        activ = actv;
+    }
+    @Override
+    public void run(){
+        activ.addLogText(msg, false);
+        Toast.makeText(activ.getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
     }
 }
 
