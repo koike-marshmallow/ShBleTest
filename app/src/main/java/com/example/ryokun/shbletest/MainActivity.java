@@ -29,15 +29,20 @@ public class MainActivity extends AppCompatActivity {
         final Button be = (Button)this.findViewById(R.id.btnstop);
         final TextView tvs = (TextView)this.findViewById(R.id.textstatus);
 
+        setInstanceText();
+        addLogText("initialization", true);
+
         bs.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
                 tvs.setText("start");
+                setInstanceText();
                 onBtnStartBleScanClicked(v);
             }
         });
         be.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
                 tvs.setText("stop");
+                setInstanceText();
                 onBtnStopBleScanClicked(v);
             }
         });
@@ -48,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
             public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord){
                 String msg = "ADDRESS=" + device.getAddress() + "\nRSSI=" + rssi;
                 Log.d("BLE", msg);
+                addLogText(msg, false);
                 Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
             }
         };
@@ -59,6 +65,23 @@ public class MainActivity extends AppCompatActivity {
 
     public void onBtnStopBleScanClicked(View view){
         bta.stopLeScan(lesc);
+    }
+
+    private void setInstanceText(){
+        String str = "";
+        str += "bmanager: " + (btm != null ? btm.toString() : "null") + "\n";
+        str += "badaptor: " + (bta != null ? bta.toString() : "null");
+        ((TextView)findViewById(R.id.textinstance)).setText(str);
+    }
+
+    private void addLogText(String str, boolean refresh){
+        TextView tvl = (TextView)findViewById(R.id.textlog);
+        String pre = tvl.getText().toString();
+        if( refresh || pre.equals("") ){
+            tvl.setText(str);
+        }else{
+            tvl.setText(pre + "\n" + str);
+        }
     }
 }
 
