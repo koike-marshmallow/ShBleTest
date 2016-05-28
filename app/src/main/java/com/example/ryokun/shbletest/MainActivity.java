@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity
 implements BluetoothAdapter.LeScanCallback{
     private BleDetector detector;
     private TextView tvStatus;
-    //private final Handler handler = new Handler();
+    private final Handler handler = new Handler();
     private boolean isScanning = false;
 
     @Override
@@ -78,18 +78,33 @@ implements BluetoothAdapter.LeScanCallback{
 
     @Override
     public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord){
+        handler.post(new ViewBluetoothDeviceInfo(this, device, rssi, scanRecord));
+    }
+}
+
+class ViewBluetoothDeviceInfo implements Runnable{
+    private MainActivity mainAct;
+    private BluetoothDevice device;
+    private int rssi;
+    byte[] scanRecord;
+    public ViewBluetoothDeviceInfo(MainActivity a0, BluetoothDevice d0, int r0, byte[] s0){
+        mainAct = a0;
+        device = d0;
+        rssi = r0;
+        scanRecord = s0;
+    }
+    @Override
+    public void run() {
         String deviceInfo = "[ADDR=" + device.getAddress() + ",RSSI=" + rssi + "]";
         String records = convertToHexString(scanRecord);
-        String msg = deviceInfo + "\n" + records;
-        addLogText(msg, false);
+        String msg = "---detected---\n" + deviceInfo + "\n" + records;
+        mainAct.addLogText(msg, false);
     }
-
-    String convertToHexString(byte[] bytes){
+    String convertToHexString(byte[] bytes) {
         StringBuffer buffer = new StringBuffer();
-        for(int i=0; i<bytes.length; i++) {
+        for (int i = 0; i < bytes.length; i++) {
             buffer.append(Integer.toHexString(bytes[i] & 0xff));
         }
         return buffer.toString();
     }
 }
-
