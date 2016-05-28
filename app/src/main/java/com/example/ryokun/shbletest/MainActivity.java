@@ -40,17 +40,24 @@ implements BluetoothAdapter.LeScanCallback{
                     scanStop();
                     bsw.setText("START");
                 }else{
-                    scanStart();
-                    bsw.setText("STOP");
+                    if( scanStart() ) {
+                        bsw.setText("STOP");
+                    }
                 }
             }
         });
     }
 
-    public void scanStart(){
-        isScanning = true;
-        detector.startLeScan();
-        tvStatus.setText("スキャン中...");
+    public boolean scanStart(){
+        if( detector.isBluetoothEnabled() ){
+            isScanning = true;
+            detector.startLeScan();
+            tvStatus.setText("スキャン中...");
+            return true;
+        }else{
+            tvStatus.setText("Bluetoothを有効にして下さい");
+            return false;
+        }
     }
 
     public void scanStop(){

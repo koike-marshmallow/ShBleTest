@@ -55,4 +55,8 @@ public class BleDetector {
     public BluetoothAdapter getBluetoothAdapter(){
         return badapter;
     }
+
+    public boolean isBluetoothEnabled(){
+        return badapter.isEnabled();
+    }
 }
