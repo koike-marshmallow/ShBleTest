@@ -16,48 +16,51 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity
 implements BluetoothAdapter.LeScanCallback{
     private BleDetector detector;
-
     private TextView tvStatus;
-
-    private final Handler handler = new Handler();
+    //private final Handler handler = new Handler();
+    private boolean isScanning = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        detector = new BleDetector(this);
-        tvStatus = (TextView)this.findViewById(R.id.textstatus);
+        detector = new BleDetector(this, this);
+        tvStatus = (TextView)this.findViewById(R.id.blestatus);
 
-        final Button bs = (Button)this.findViewById(R.id.btnstart);
-        final Button be = (Button)this.findViewById(R.id.btnstop);
+        addLogText(detector.getBluetoothManager().toString(), true);
+        addLogText(detector.getBluetoothAdapter().toString(), false);
 
-        addLogText("initialization", true);
-
-        bs.setOnClickListener(new View.OnClickListener(){
+        final Button bsw = (Button)findViewById(R.id.bleswitch);
+        bsw.setText("START");
+        bsw.setOnClickListener(new View.OnClickListener(){
+            @Override
             public void onClick(View v){
-                onBtnStartBleScanClicked(v);
-            }
-        });
-        be.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v){
-                onBtnStopBleScanClicked(v);
+                if( isScanning ){
+                    scanStop();
+                    bsw.setText("START");
+                }else{
+                    scanStart();
+                    bsw.setText("STOP");
+                }
             }
         });
     }
 
-    public void onBtnStartBleScanClicked(View view){
-        tvStatus.setText("start");
+    public void scanStart(){
+        isScanning = true;
         detector.startLeScan();
+        tvStatus.setText("スキャン中...");
     }
 
-    public void onBtnStopBleScanClicked(View view){
-        tvStatus.setText("end");
+    public void scanStop(){
+        isScanning = false;
         detector.stopLeScan();
+        tvStatus.setText("停止中");
     }
 
     public void addLogText(String str, boolean refresh){
-        TextView tvl = (TextView)findViewById(R.id.textlog);
+        TextView tvl = (TextView)findViewById(R.id.output);
         String pre = tvl.getText().toString();
         if( refresh || pre.equals("") ){
             tvl.setText(str);

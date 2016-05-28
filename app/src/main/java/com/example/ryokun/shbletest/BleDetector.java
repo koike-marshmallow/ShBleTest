@@ -47,4 +47,12 @@ public class BleDetector {
     public void stopLeScan(){
         badapter.stopLeScan(callback);
     }
+
+    public BluetoothManager getBluetoothManager(){
+        return bmanager;
+    }
+
+    public BluetoothAdapter getBluetoothAdapter(){
+        return badapter;
+    }
 }
